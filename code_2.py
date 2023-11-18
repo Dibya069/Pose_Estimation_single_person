@@ -2,6 +2,7 @@ import cv2
 import time
 import math as m
 import mediapipe as mp
+import winsound
 
 
 # Calculate distance
@@ -18,8 +19,8 @@ def findAngle(x1, y1, x2, y2):
 
 
 # Function to send alert
-def sendWarning(x):
-    pass
+def sendWarning():
+    winsound.Beep(800, 200)
 
 
 # =============================CONSTANTS and INITIALIZATIONS=====================================#
@@ -46,7 +47,7 @@ pose = mp_pose.Pose()
 
 if __name__ == "__main__":
     file_name = 'input.mp4'
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     # Meta.
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -103,9 +104,9 @@ if __name__ == "__main__":
         # Assist to align the camera to point at the side view of the person.
         # Offset threshold 30 is based on results obtained from analysis over 100 samples.
         if offset < 100:
-            cv2.putText(image, str(int(offset)) + ' Aligned', (w - 150, 30), font, 0.9, green, 2)
+            cv2.putText(image, str(int(offset)) + ' Aligned', (w - 200, 30), font, 0.9, green, 2)
         else:
-            cv2.putText(image, str(int(offset)) + ' Not Aligned', (w - 150, 30), font, 0.9, red, 2)
+            cv2.putText(image, str(int(offset)) + ' Not Aligned', (w - 240, 30), font, 0.9, red, 2)
 
         # Calculate angles.
         neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
@@ -172,7 +173,7 @@ if __name__ == "__main__":
             cv2.putText(image, time_string_bad, (10, h - 20), font, 0.9, red, 2)
 
         # If you stay in bad posture for more than 3 minutes (180s) send an alert.
-        if bad_time > 180:
+        if bad_time > 5:
             sendWarning()
         # Write frames.
         video_output.write(image)
