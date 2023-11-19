@@ -15,5 +15,5 @@ https://github.com/Dibya069/Pose_Estimation_single_person/assets/121597961/afe42
 - Code is in `code_2.py` file
 - Modify `Mediapipe` to build this program
 
-![Watch Video](https://github.com/Dibya069/Pose_Estimation_single_person/assets/121597961/302fc6e1-fcd9-452c-a1fd-72bea7f62a4d)
+https://github.com/Dibya069/Pose_Estimation_single_person/assets/121597961/302fc6e1-fcd9-452c-a1fd-72bea7f62a4d
 
