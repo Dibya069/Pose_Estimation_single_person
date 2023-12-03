@@ -54,7 +54,7 @@ pose = mp_pose.Pose()
 
 if __name__ == "__main__":
     file_name = 'test2.mp4'
-    cap = cv2.VideoCapture(file_name)
+    cap = cv2.VideoCapture(1)
 
     # Meta.
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -155,6 +155,7 @@ if __name__ == "__main__":
 
             if elbow_angle < 19 and not flag:
                 tom += 1
+                sendWarning()
                 flag = True
                 delay_thread = threading.Thread(target=delay_function)
                 delay_thread.start()
@@ -180,7 +181,7 @@ if __name__ == "__main__":
         # Write frames.
         #video_output.write(image)
 
-        image = cv2.resize(image, (w // 2, h // 2))
+        #image = cv2.resize(image, (w // 2, h // 2))
 
         # Display.
         cv2.imshow('MediaPipe Pose', image)
