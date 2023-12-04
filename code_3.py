@@ -5,6 +5,7 @@ import mediapipe as mp
 import winsound
 import time
 import threading
+import numpy as np
 
 # Calculate distance
 def findDistance(x1, y1, x2, y2):
@@ -18,6 +19,14 @@ def findAngle(x1, y1, x2, y2):
     degree = int(180 / m.pi) * theta
     return degree
 
+#CALCULATE ANGLE
+def findAngle_bet_3_points(a0, a1, b0, b1, c0, c1):
+    rediance = np.arctan2(c1 - b1, c0 - b0) - np.arctan2(a1 - b1, a0 - b0)
+    angle = np.abs(rediance * 180.0 / np.pi)
+
+    if angle > 180.0:
+        angle = 360 - angle
+    return angle
 
 # Function to send alert
 def sendWarning():
@@ -54,7 +63,7 @@ pose = mp_pose.Pose()
 
 if __name__ == "__main__":
     file_name = 'test2.mp4'
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(file_name)
 
     # Meta.
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -110,6 +119,12 @@ if __name__ == "__main__":
             #left hand
             l_wri_x = int(lm.landmark[lmPose.LEFT_WRIST].x * w)
             l_wri_y = int(lm.landmark[lmPose.LEFT_WRIST].y * h)
+            #left hip
+            l_hip_x = int(lm.landmark[lmPose.LEFT_HIP].x * w)
+            l_hip_y = int(lm.landmark[lmPose.LEFT_HIP].y * h)
+            #left knee
+            l_KNEE_x = int(lm.landmark[lmPose.LEFT_KNEE].x * w)
+            l_KNEE_y = int(lm.landmark[lmPose.LEFT_KNEE].y * h)
 
             # Calculate distance between left shoulder and right shoulder points.
             offset = findDistance(l_shldr_x, l_shldr_y, r_shldr_x, r_shldr_y)
@@ -125,63 +140,87 @@ if __name__ == "__main__":
             neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
             elbow_angle = findAngle(l_elb_x, l_elb_y, l_shldr_x, l_shldr_y)
             wrist_angle = findAngle(l_wri_x, l_wri_y, l_elb_x, l_elb_y)
+            hip_angle = findAngle_bet_3_points(l_elb_x, l_elb_y, l_hip_x, l_hip_y, l_KNEE_x, l_KNEE_y)
 
             # Draw landmarks.
             cv2.circle(image, (l_shldr_x, l_shldr_y), 7, yellow, -1)
             cv2.circle(image, (l_ear_x, l_ear_y), 7, yellow, -1)
 
-            # Let's take y - coordinate of P3 100px above x1,  for display elegance.
-            # Although we are taking y = 0 while calculating angle between P1,P2,P3.
             cv2.circle(image, (l_shldr_x, l_shldr_y - 100), 7, yellow, -1)
             cv2.circle(image, (r_shldr_x, r_shldr_y), 7, pink, -1)
             cv2.circle(image, (l_elb_x, l_elb_y), 7, yellow, -10)
             cv2.circle(image, (l_wri_x, l_wri_y), 7, yellow, -10)
+            cv2.circle(image, (l_hip_x, l_hip_y), 7, yellow, -10)
+            cv2.circle(image, (l_KNEE_x, l_KNEE_y), 7, yellow, -10)
 
+            angle_text_string = 'Neck : ' + str(int(neck_inclination))              
 
-            # Similarly, here we are taking y - coordinate 100px above x1. Note that
-            # you can take any value for y, not necessarily 100 or 200 pixels.
+            if hip_angle > 100:
+                cv2.putText(image, angle_text_string, (10, 30), font, 0.9, green, 2)
+                cv2.putText(image, str(int(neck_inclination)) + " deg", (l_shldr_x + 10, l_shldr_y), font, 0.9, green, 2)
+                cv2.putText(image, str(int(elbow_angle)) + " deg", (l_elb_x + 10, l_elb_y), font, 0.9, green, 2)
+                cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), font, 0.9, green, 2)
+                cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), font, 0.9, green, 2)
 
-            # Put text, Posture and angle inclination.
-            # Text string for display.
-            angle_text_string = 'Neck : ' + str(int(neck_inclination))
+                if elbow_angle < 19 and elbow_angle > 14 and not flag:   #add other end condition also like elbow > 10
+                    tom += 1
+                    sendWarning()
+                    flag = True
+                    delay_thread = threading.Thread(target=delay_function)
+                    delay_thread.start()
 
-            # Determine whether good posture or bad posture.
-            # The threshold angles have been set based on intuition.               
+                cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, green, 2)
 
-            cv2.putText(image, angle_text_string, (10, 30), font, 0.9, red, 2)
-            cv2.putText(image, str(int(neck_inclination)) + " deg", (l_shldr_x + 10, l_shldr_y), font, 0.9, red, 2)
-            cv2.putText(image, str(int(elbow_angle)) + " deg", (l_elb_x + 10, l_elb_y), font, 0.9, red, 2)
-            cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), font, 0.9, red, 2)
+                # Join landmarks.
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), green, 4)
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_shldr_x, l_shldr_y - 50), green, 4)
+                
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_elb_x, l_elb_y), green, 4)
+                cv2.line(image, (l_elb_x, l_elb_y), (l_elb_x, l_elb_y - 50), green, 4)
 
-            if elbow_angle < 19 and not flag:
-                tom += 1
-                sendWarning()
-                flag = True
-                delay_thread = threading.Thread(target=delay_function)
-                delay_thread.start()
+                cv2.line(image, (l_elb_x, l_elb_y), (l_wri_x, l_wri_y), green, 4)
+                cv2.line(image, (l_wri_x, l_wri_y), (l_wri_x, l_wri_y - 50), green, 4)
 
-            cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, red, 2)
-
-            # Join landmarks.
-            cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), red, 4)
-            cv2.line(image, (l_shldr_x, l_shldr_y), (l_shldr_x, l_shldr_y - 50), red, 4)
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_hip_x, l_hip_y), green, 4)
+                cv2.line(image, (l_hip_x, l_hip_y), (l_KNEE_x, l_KNEE_y), green, 4)
             
-            cv2.line(image, (l_shldr_x, l_shldr_y), (l_elb_x, l_elb_y), green, 4)
-            cv2.line(image, (l_elb_x, l_elb_y), (l_elb_x, l_elb_y - 50), green, 4)
+            else:
+                cv2.putText(image, angle_text_string, (10, 30), font, 0.9, red, 2)
+                cv2.putText(image, str(int(neck_inclination)) + " deg", (l_shldr_x + 10, l_shldr_y), font, 0.9, red, 2)
+                cv2.putText(image, str(int(elbow_angle)) + " deg", (l_elb_x + 10, l_elb_y), font, 0.9, red, 2)
+                cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), font, 0.9, red, 2)
+                cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), font, 0.9, red, 2)
 
-            cv2.line(image, (l_elb_x, l_elb_y), (l_wri_x, l_wri_y), green, 4)
-            cv2.line(image, (l_wri_x, l_wri_y), (l_wri_x, l_wri_y - 50), green, 4)
+                if elbow_angle < 19 and elbow_angle > 14 and not flag:   #add other end condition also like elbow > 10
+                    tom += 0
+                    #sendWarning()
+                    flag = True
+                    delay_thread = threading.Thread(target=delay_function)
+                    delay_thread.start()
 
-            # If you stay in bad posture for more than 3 minutes (180s) send an alert.
-            #if bad_time > 5:
-                #sendWarning()
+                cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, red, 2)
+                cv2.putText(image, str("Bad posture"), (20, 350), font, 0.9, red, 2)
+
+                # Join landmarks.
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), red, 4)
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_shldr_x, l_shldr_y - 50), red, 4)
+                
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_elb_x, l_elb_y), red, 4)
+                cv2.line(image, (l_elb_x, l_elb_y), (l_elb_x, l_elb_y - 50), red, 4)
+
+                cv2.line(image, (l_elb_x, l_elb_y), (l_wri_x, l_wri_y), red, 4)
+                cv2.line(image, (l_wri_x, l_wri_y), (l_wri_x, l_wri_y - 50), red, 4)
+
+                cv2.line(image, (l_shldr_x, l_shldr_y), (l_hip_x, l_hip_y), red, 4)
+                cv2.line(image, (l_hip_x, l_hip_y), (l_KNEE_x, l_KNEE_y), red, 4)
+            
 
         else:
             print("body for predictioin is not shown yet...")
         # Write frames.
         #video_output.write(image)
 
-        #image = cv2.resize(image, (w // 2, h // 2))
+        image = cv2.resize(image, (w // 2, h // 2))
 
         # Display.
         cv2.imshow('MediaPipe Pose', image)
