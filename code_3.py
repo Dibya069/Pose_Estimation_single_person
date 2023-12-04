@@ -228,4 +228,5 @@ if __name__ == "__main__":
             break
 
 cap.release()
+#video_output.release()
 cv2.destroyAllWindows()
