@@ -227,6 +227,6 @@ if __name__ == "__main__":
         if cv2.waitKey(5) & 0xFF == ord('q'):
             break
 
-cap.release()
-#video_output.release()
-cv2.destroyAllWindows()
+    cap.release()
+    #video_output.release()
+    cv2.destroyAllWindows()

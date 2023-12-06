@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Video writer.
     video_output = cv2.VideoWriter('output.mp4', fourcc, fps, frame_size)
     tom = 0
-    flag = False
+    flag = None
 
     while cap.isOpened():
         # Capture frames.
@@ -129,14 +129,17 @@ if __name__ == "__main__":
             cv2.circle(image, (l_ANKLE_x, l_ANKLE_y), 7, yellow, -10)
 
             if knee_angle < 60:
-                if hip_angle < 60 and not flag:   #add other end condition also like elbow > 10
+                if hip_angle > 70:   #add other end condition also like elbow > 10
+                    flag = "Down"
+                if hip_angle < 50 and flag == "Down":
+                    flag = "Up"
                     tom += 1
                     sendWarning()
-                    flag = True
-                    delay_thread = threading.Thread(target=delay_function)
-                    delay_thread.start()
 
                 cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, green, 2)
+                cv2.putText(image, str(flag), (20, 350), font, 0.9, green, 2)
+
+                
                 cv2.putText(image, str(int(hip_angle)) + " deg", (l_hip_x + 10, l_hip_y), font, 0.9, green, 2)
                 cv2.putText(image, str(int(knee_angle)) + " deg", (l_KNEE_x + 10, l_KNEE_y), font, 0.9, green, 2)
 
@@ -146,14 +149,15 @@ if __name__ == "__main__":
                 cv2.line(image, (l_KNEE_x, l_KNEE_y), (l_ANKLE_x, l_ANKLE_y), green, 4)
             
             else:
-                if hip_angle < 60 and not flag:   #add other end condition also like elbow > 10
+                if hip_angle > 70:   #add other end condition also like elbow > 10
+                    flag = "Down"
+                if hip_angle < 50 and flag == "Down":
+                    flag = "Up"
                     tom += 0
-                    #sendWarning()
-                    flag = True
-                    delay_thread = threading.Thread(target=delay_function)
-                    delay_thread.start()
 
                 cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, red, 2)
+                cv2.putText(image, str(flag), (20, 350), font, 0.9, red, 2)
+                
                 cv2.putText(image, str(int(hip_angle)) + " deg", (l_hip_x + 10, l_hip_y), font, 0.9, red, 2)
                 cv2.putText(image, str(int(knee_angle)) + " deg", (l_KNEE_x + 10, l_KNEE_y), font, 0.9, red, 2)
 
@@ -175,6 +179,6 @@ if __name__ == "__main__":
         if cv2.waitKey(5) & 0xFF == ord('q'):
             break
 
-cap.release()
-video_output.release()
-cv2.destroyAllWindows()
+    cap.release()
+    video_output.release()
+    cv2.destroyAllWindows()
