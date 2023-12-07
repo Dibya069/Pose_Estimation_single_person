@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Video writer.
     #video_output = cv2.VideoWriter('output.mp4', fourcc, fps, frame_size)
     tom = 0
-    flag = False
+    flag = None
 
     while cap.isOpened():
         # Capture frames.
@@ -162,14 +162,15 @@ if __name__ == "__main__":
                 cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), font, 0.9, green, 2)
                 cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), font, 0.9, green, 2)
 
-                if elbow_angle < 19 and elbow_angle > 14 and not flag:   #add other end condition also like elbow > 10
+                if elbow_angle > 115:   #add other end condition also like elbow > 10
+                    flag = "Down"
+                if elbow_angle < 19 and flag == "Down":
+                    flag = "Up"
                     tom += 1
                     sendWarning()
-                    flag = True
-                    delay_thread = threading.Thread(target=delay_function)
-                    delay_thread.start()
 
-                cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, green, 2)
+                cv2.putText(image, str(int(tom)), (20, 300), font, 1, green, 2)
+                cv2.putText(image, str(flag), (20, 250), font, 1, green, 2)
 
                 # Join landmarks.
                 cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), green, 4)
@@ -191,15 +192,16 @@ if __name__ == "__main__":
                 cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), font, 0.9, red, 2)
                 cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), font, 0.9, red, 2)
 
-                if elbow_angle < 19 and elbow_angle > 14 and not flag:   #add other end condition also like elbow > 10
+                if elbow_angle > 100:   #add other end condition also like elbow > 10
+                    flag = "Down"
+                if elbow_angle < 19 and flag == "Down":
+                    flag = "Up"
                     tom += 0
-                    #sendWarning()
-                    flag = True
-                    delay_thread = threading.Thread(target=delay_function)
-                    delay_thread.start()
+                    sendWarning()
 
-                cv2.putText(image, str(int(tom)), (20, 300), font, 0.9, red, 2)
-                cv2.putText(image, str("Bad posture"), (20, 350), font, 0.9, red, 2)
+                cv2.putText(image, str(int(tom)), (20, 300), font, 1, red, 2)
+                cv2.putText(image, str(flag), (20, 250), font, 1, red, 2)
+                cv2.putText(image, str("Bad posture"), (20, 350), font, 1, red, 2)
 
                 # Join landmarks.
                 cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), red, 4)

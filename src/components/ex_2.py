@@ -14,7 +14,8 @@ from src.utils import *
 class ex_2:
     def __init__(self):
         self.tom = 0
-        self.flag = False
+        self.flag = None
+        self.processed_frame = None
 
     def Squard(self, cap):
         while cap.isOpened():
@@ -69,12 +70,12 @@ class ex_2:
                 cv2.circle(image, (l_ANKLE_x, l_ANKLE_y), 7, CONST.yellow, -10)
 
                 if knee_angle < 60:
-                    if hip_angle < 60 and not self.flag:   #add other end condition also like elbow > 10
+                    if hip_angle > 70:   #add other end condition also like elbow > 10
+                        self.flag = "Down"
+                    if hip_angle < 50 and self.flag == "Down":
+                        self.flag = "Up"
                         self.tom += 1
                         sendWarning()
-                        self.flag = True
-                        delay_thread = threading.Thread(target=delay_function)
-                        delay_thread.start()
 
                     cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 0.9, CONST.green, 2)
                     cv2.putText(image, str(int(hip_angle)) + " deg", (l_hip_x + 10, l_hip_y), CONST.font, 0.9, CONST.green, 2)
@@ -86,12 +87,11 @@ class ex_2:
                     cv2.line(image, (l_KNEE_x, l_KNEE_y), (l_ANKLE_x, l_ANKLE_y), CONST.green, 4)
                 
                 else:
-                    if hip_angle < 60 and not self.flag:   #add other end condition also like elbow > 10
+                    if hip_angle > 70:   #add other end condition also like elbow > 10
+                        self.flag = "Down"
+                    if hip_angle < 50 and self.flag == "Down":
+                        self.flag = "Up"
                         self.tom += 0
-                        #sendWarning()
-                        self.flag = True
-                        delay_thread = threading.Thread(target=delay_function)
-                        delay_thread.start()
 
                     cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 0.9, CONST.red, 2)
                     cv2.putText(image, str(int(hip_angle)) + " deg", (l_hip_x + 10, l_hip_y), CONST.font, 0.9, CONST.red, 2)
@@ -108,9 +108,10 @@ class ex_2:
             # Write frames.
             #video_output.write(image)
 
-            image = cv2.resize(image, (w // 2, h // 2))
+            image = cv2.resize(image, (w, h))
+            self.processed_frame = image.copy()
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(5) & 0xFF == ord('q'):
+            if cv2.waitKey(5) & self.tom > 3:
                 break

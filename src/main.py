@@ -1,10 +1,8 @@
 import cv2
-import time
-import sys, os
-
 from src.components.ex_1 import ex_1
 from src.components.ex_2 import ex_2
 from src.utils import *
+import time
 
 def main():
     file_name = 'test2.mp4'
@@ -18,18 +16,35 @@ def main():
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
     # Video writer.
-    #video_output = cv2.VideoWriter('output.mp4', fourcc, fps, frame_size)
+    video_output = cv2.VideoWriter('output.mp4', fourcc, fps, frame_size)
     obj1 = ex_1()
     obj2 = ex_2()
 
-    obj1.PushUp(cap)
+    try:
+        while True:
+            obj1.PushUp(cap)
+            time.sleep(1)
+            obj2.Squard(cap)
 
-    time.sleep(5)
+            process_frame_1 = obj1.processed_frame
+            process_frame_2 = obj2.processed_frame
 
-    obj2.Squard(cap)
+            if process_frame_1 is not None:
+                video_output.write(process_frame_1)
+            if process_frame_2 is not None:
+                video_output.write(process_frame_2)
 
-    cap.release()
-    cv2.destroyAllWindows()
+            key = cv2.waitKey(1)
+            if key == 27 or key == ord('q'):  # 27 is the ASCII code for the Esc key
+                break
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # Release the resources
+        cap.release()
+        video_output.release()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()

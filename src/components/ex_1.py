@@ -14,7 +14,8 @@ from src.utils import *
 class ex_1:
     def __init__(self):
         self.tom = 0
-        self.flag = False
+        self.flag = None
+        self.processed_frame = None
 
     def PushUp(self, cap):
         while cap.isOpened():
@@ -102,14 +103,15 @@ class ex_1:
                     cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), CONST.font, 0.9, CONST.green, 2)
                     cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), CONST.font, 0.9, CONST.green, 2)
 
-                    if elbow_angle < 19 and elbow_angle > 14 and not self.flag:   #add other end condition also like elbow > 10
+                    if elbow_angle > 115:   #add other end condition also like elbow > 10
+                        self.flag = "Down"
+                    if elbow_angle < 19 and self.flag == "Down":
+                        self.flag = "Up"
                         self.tom += 1
                         sendWarning()
-                        self.flag = True
-                        delay_thread = threading.Thread(target=delay_function)
-                        delay_thread.start()
 
-                    cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 0.9, CONST.green, 2)
+                    cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 1, CONST.green, 2)
+                    cv2.putText(image, str(self.flag), (20, 250), CONST.font, 1, CONST.green, 2)
 
                     # Join landmarks.
                     cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), CONST.green, 4)
@@ -131,15 +133,16 @@ class ex_1:
                     cv2.putText(image, str(int(wrist_angle)) + " deg", (l_wri_x + 10, l_wri_y), CONST.font, 0.9, CONST.red, 2)
                     cv2.putText(image, str(int(hip_angle)) + "deg", (l_hip_x + 10, l_hip_y), CONST.font, 0.9, CONST.red, 2)
 
-                    if elbow_angle < 19 and elbow_angle > 14 and not self.flag:   #add other end condition also like elbow > 10
+                    if elbow_angle > 100:   #add other end condition also like elbow > 10
+                        self.flag = "Down"
+                    if elbow_angle < 19 and self.flag == "Down":
+                        self.flag = "Up"
                         self.tom += 0
-                        #sendWarning()
-                        self.flag = True
-                        delay_thread = threading.Thread(target=delay_function)
-                        delay_thread.start()
+                        sendWarning()
 
-                    cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 0.9, CONST.red, 2)
-                    cv2.putText(image, str("Bad posture"), (20, 350), CONST.font, 0.9, CONST.red, 2)
+                    cv2.putText(image, str(int(self.tom)), (20, 300), CONST.font, 1, CONST.red, 2)
+                    cv2.putText(image, str(self.flag), (20, 250), CONST.font, 1, CONST.red, 2)
+                    cv2.putText(image, str("Bad posture"), (20, 350), CONST.font, 1, CONST.red, 2)
 
                     # Join landmarks.
                     cv2.line(image, (l_shldr_x, l_shldr_y), (l_ear_x, l_ear_y), CONST.red, 4)
@@ -160,9 +163,10 @@ class ex_1:
             # Write frames.
             #video_output.write(image)
 
-            image = cv2.resize(image, (w // 2, h // 2))
+            image = cv2.resize(image, (w, h))
+            self.processed_frame = image.copy()
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(5) & 0xFF == ord('q'):
+            if cv2.waitKey(5) & self.tom > 4:
                 break
