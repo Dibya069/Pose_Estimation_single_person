@@ -62,3 +62,15 @@ class CONST:
     # Initialize mediapipe pose class.
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose()
+
+@dataclass
+class SaveVideo:
+    file = "E:/data science/PoseEstimation/test2.mp4"
+    cap = cv2.VideoCapture(file)
+    
+    # Meta.
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_size = (width, height)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')

@@ -77,6 +77,8 @@ class ex_1:
                 else:
                     cv2.putText(image, str(int(offset)) + ' Not Aligned', (w - 240, 30), CONST.font, 0.9, CONST.red, 2)
 
+                cv2.putText(image, str("Push_Up"), (600, 50), CONST.font, 1.5, CONST.blue, 5)
+
                 # Calculate angles.
                 neck_inclination = findAngle(l_shldr_x, l_shldr_y, l_ear_x, l_ear_y)
                 elbow_angle = findAngle(l_elb_x, l_elb_y, l_shldr_x, l_shldr_y)
@@ -160,13 +162,12 @@ class ex_1:
 
             else:
                 print("body for predictioin is not shown yet...")
-            # Write frames.
-            #video_output.write(image)
 
-            image = cv2.resize(image, (w, h))
+
             self.processed_frame = image.copy()
+            image = cv2.resize(image, (w // 2, h // 2))
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(5) & self.tom > 4:
+            if cv2.waitKey(5) & self.tom > 1:
                 break

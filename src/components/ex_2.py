@@ -58,6 +58,7 @@ class ex_2:
                 l_ANKLE_x = int(lm.landmark[lmPose.LEFT_ANKLE].x * w)
                 l_ANKLE_y = int(lm.landmark[lmPose.LEFT_ANKLE].y * h)
 
+                cv2.putText(image, str("SQUARD"), (600, 50), CONST.font, 1.5, CONST.blue, 5)
 
                 # Calculate angles.
                 hip_angle = findAngle_bet_3_points(l_shldr_x, l_shldr_y, l_hip_x, l_hip_y, l_KNEE_x, l_KNEE_y)
@@ -108,8 +109,8 @@ class ex_2:
             # Write frames.
             #video_output.write(image)
 
-            image = cv2.resize(image, (w, h))
             self.processed_frame = image.copy()
+            image = cv2.resize(image, (w // 2, h // 2))
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
