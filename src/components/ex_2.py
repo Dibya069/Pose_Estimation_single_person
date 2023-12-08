@@ -16,6 +16,7 @@ class ex_2:
         self.tom = 0
         self.flag = None
         self.processed_frame = None
+        self.video_saved = cv2.VideoWriter('output2.mp4', SaveVideo.fourcc, SaveVideo.fps, SaveVideo.frame_size)
 
     def Squard(self, cap):
         while cap.isOpened():
@@ -109,10 +110,12 @@ class ex_2:
             # Write frames.
             #video_output.write(image)
 
-            self.processed_frame = image.copy()
+            self.processed_frame = self.video_saved.write(image)
             image = cv2.resize(image, (w // 2, h // 2))
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(5) & self.tom > 3:
+            if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
+
+        return self.processed_frame

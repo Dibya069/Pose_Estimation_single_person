@@ -16,6 +16,7 @@ class ex_1:
         self.tom = 0
         self.flag = None
         self.processed_frame = None
+        self.video_saved = cv2.VideoWriter('output1.mp4', SaveVideo.fourcc, SaveVideo.fps, SaveVideo.frame_size)
 
     def PushUp(self, cap):
         while cap.isOpened():
@@ -164,10 +165,12 @@ class ex_1:
                 print("body for predictioin is not shown yet...")
 
 
-            self.processed_frame = image.copy()
+            self.processed_frame = self.video_saved.write(image)
             image = cv2.resize(image, (w // 2, h // 2))
 
             # Display.
             cv2.imshow('MediaPipe Pose', image)
-            if cv2.waitKey(5) & self.tom > 1:
+            if cv2.waitKey(5) & self.tom > 1 or 0xFF == ord("q"):
                 break
+
+        return self.processed_frame

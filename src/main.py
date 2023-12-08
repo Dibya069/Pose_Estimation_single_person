@@ -3,6 +3,7 @@ from src.components.ex_1 import ex_1
 from src.components.ex_2 import ex_2
 from src.utils import *
 import time
+import numpy as np
 
 def main():
     # Video writer.
@@ -12,18 +13,21 @@ def main():
 
     try:
         while True:
-            obj1.PushUp(SaveVideo.cap)
+            process_frame_1 = obj1.PushUp(SaveVideo.cap)
             time.sleep(0.3)
-            obj2.Squard(SaveVideo.cap)
+            process_frame_2 = obj2.Squard(SaveVideo.cap)
 
-            process_frame_1 = obj1.processed_frame
-            process_frame_2 = obj2.processed_frame
 
-            video_output.write(process_frame_1)
-            video_output.write(process_frame_2)
+            combined_frame = cv2.hconcat([process_frame_1, process_frame_2])
 
-            key = cv2.waitKey(1)
-            if key == 27 or key == ord('q'):  # 27 is the ASCII code for the Esc key
+            # Normalize the combined frame to uint8
+            normalized_frame = cv2.normalize(combined_frame, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
+            # Write the normalized frame to the video
+            video_output.write(normalized_frame)
+
+            key = cv2.waitKey(1)    
+            if key == 27 or key == ord('c'):  # 27 is the ASCII code for the Esc key
                 break
 
     except KeyboardInterrupt:
