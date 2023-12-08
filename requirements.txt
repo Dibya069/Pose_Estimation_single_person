@@ -1,4 +1,5 @@
 Opencv-python
-mediapipe
+mediapipe==0.8.9.1
 pandas
 numpy
+tqdm
