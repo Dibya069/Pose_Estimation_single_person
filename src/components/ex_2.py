@@ -117,5 +117,3 @@ class ex_2:
             cv2.imshow('MediaPipe Pose', image)
             if cv2.waitKey(5) & 0xFF == ord('q'):
                 break
-
-        return self.processed_frame

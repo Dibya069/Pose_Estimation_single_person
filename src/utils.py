@@ -74,3 +74,8 @@ class SaveVideo:
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_size = (width, height)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+@dataclass
+class Results:
+    ex_out1 = "E:/data science/PoseEstimation/output1.mp4"
+    ex_out2 = "E:/data science/PoseEstimation/output2.mp4"
