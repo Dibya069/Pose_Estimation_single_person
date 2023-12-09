@@ -66,7 +66,7 @@ class CONST:
 @dataclass
 class SaveVideo:
     file = "E:/data science/PoseEstimation/test2.mp4"
-    cap = cv2.VideoCapture(file)
+    cap = cv2.VideoCapture(1)
     
     # Meta.
     fps = int(cap.get(cv2.CAP_PROP_FPS))

@@ -16,6 +16,8 @@ def main():
             obj1.PushUp(SaveVideo.cap)
             time.sleep(0.3)
             obj2.Squard(SaveVideo.cap)
+            if obj2.stopLoop:
+                break
 
     except KeyboardInterrupt:
         pass
